@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Стреляющий куб (с ограничением стрельбы)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #score {
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        #cube {
+            width: 50px;
+            height: 57px;
+            background: #f00;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.1s;
+        }
+        .bullet {
+            width: 8px;
+            height: 8px;
+            background: #ff0;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 105px;
+        }
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 36px solid #000;
+            position: absolute;
+            top: 20px;
+        }
+        .pentagon {
+            width: 30px;
+            height: 30px;
+            background: #00f;
+            position: absolute;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+
+        .hexagon {
+            width: 30px;
+            height: 30px;
+            background: #f80;
+            position: absolute;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        .circle {
+            width: 40px;
+            height: 40px;
+            background: #ff0;
+            border-radius: 50%;
+            position: absolute;
+            border: 2px solid #fff;
+        }
+        .square {
+            width: 50px;
+            height: 50px;
+            background: #f00;
+            position: absolute;
+        }
+        .octagon {
+            width: 75px;
+            height: 75px;
+            background: #FFFFFF; /* Цвет заливки */
+            position: absolute;
+            clip-path: polygon(
+                30% 0%,      /* верх-лево */
+                70% 0%,      /* верх-право */
+                100% 30%,   /* право-верх */
+                100% 70%,   /* право-низ */
+                70% 100%,   /* низ-право */
+                30% 100%,   /* низ-лево */
+                0% 70%,    /* лево-низ */
+                0% 30%     /* лево-верх */
+                );
+                outline: 5px solid #00f; /* Обводка вокруг обрезанной области */
+                outline-offset: -5px;
+            }
+        .rhomb {
+            width: 25px;
+            height: 25px;
+            background-color: #4CAF50; /* Зелёный фон */
+            border: 3px solid #2E7D32; /* Тёмно‑зелёная обводка */
+            border-radius: 5px; /* Слегка скруглить углы (опционально) */
+            transform: rotate(45deg); /* Поворачиваем квадрат на 45° — получается ромб */
+            position: absolute; /* Отступ для наглядности */
+            }
+        .elips {
+            width: 50px;
+            height: 30px;
+            background: #0ff;
+            border-radius: 50%;
+            position: absolute;
+            border: 2px solid #fff;
+        }
+        .Mega-triangle {
+            width: 0;
+            height: 0;
+            border-left: 36px solid transparent;
+            border-right: 36px solid transparent;
+            border-bottom: 72px solid #333;
+            position: absolute;
+            top: 20px;
+        }
+        .Omega-triangle {
+            width: 0;
+            height: 0;
+            border-left: 54px solid transparent;
+            border-right: 54px solid transparent;
+            border-bottom: 108px solid #555;
+            position: absolute;
+            top: 20px;
+        }
+        .Giga-triangle {
+            width: 0;
+            height: 0;
+            border-left: 108px solid transparent;
+            border-right: 108px solid transparent;
+            border-bottom: 216px solid #aaa;
+            position: absolute;
+            top: 20px;
+        }
+        .Mega-rhomb {
+            width: 40px;
+            height: 40px;
+            background-color: #2E7D32; /* Зелёный фон */
+            border: 5px solid #0C5B10; /* Тёмно‑зелёная обводка */
+            border-radius: 5px; /* Слегка скруглить углы (опционально) */
+            transform: rotate(45deg); /* Поворачиваем квадрат на 45° — получается ромб */
+            position: absolute; /* Отступ для наглядности */
+        }
+        .Omega-rhomb {
+            width: 85px;
+            height: 85px;
+            background-color: #0C5B10; /* Зелёный фон */
+            border: 5px solid #053900; /* Тёмно‑зелёная обводка */
+            border-radius: 5px; /* Слегка скруглить углы (опционально) */
+            transform: rotate(45deg); /* Поворачиваем квадрат на 45° — получается ромб */
+            position: absolute; /* Отступ для наглядности */
+        }
+        .Mega-pentagon {
+            width: 70px;
+            height: 70px;
+            background: #005;
+            position: absolute;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+        .Bad-triangle {
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 36px solid #900;
+            position: absolute;
+            top: 20px;
+        }
+        .Bad-mega-triangle {
+            width: 0;
+            height: 0;
+            border-left: 36px solid transparent;
+            border-right: 36px solid transparent;
+            border-bottom: 72px solid #500;
+            position: absolute;
+            top: 20px;
+        }
+        .septagon {
+            width: 50px;
+            height: 50px;
+            background-color: #f0f;
+            clip-path: polygon(
+                25px 0px,    /* 50%  0%   */
+                44.55px 5.45px,  /* 89.1% 10.9% */
+                48.75px 21.3px,  /* 97.5% 42.6% */
+                37.5px 37.5px,  /* 75%  75%   */
+                12.5px 37.5px,  /* 25%  75%   */
+                1.25px 21.3px,  /* 2.5% 42.6% */
+                5.45px 5.45px   /* 10.9% 10.9% */
+            );
+            position: absolute;
+        }
+        .rectangle {
+            width: 70px;
+            height: 40px;
+            background: #005053;
+            position: absolute;
+        }
+        .that-lil-bro-will-never-become-known {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 40px solid #C2B280;
+            position: absolute;
+            top: 20px;
+            /* he has 1 hp and 1000000000000000 xp */
+        }
+        .line {
+            width: 75px;
+            height: 12.5px;
+            background: #fff;
+            position: absolute;
+        }
+        .Bad-omega-triangle {
+            width: 0;
+            height: 0;
+            border-left: 54px solid transparent;
+            border-right: 54px solid transparent;
+            border-bottom: 108px solid #240000;
+            position: absolute;
+            top: 20px;
+        }
+        .Bad-rhomb {
+            width: 25px;
+            height: 25px;
+            background-color: #FF0000; /* Зелёный фон */
+            border: 3px solid #BB0000; /* Тёмно‑зелёная обводка */
+            border-radius: 5px; /* Слегка скруглить углы (опционально) */
+            transform: rotate(45deg); /* Поворачиваем квадрат на 45° — получается ромб */
+            position: absolute; /* Отступ для наглядности */
+        }
+        .Bad-mega-rhomb {
+            width: 40px;
+            height: 40px;
+            background-color: #990000; /* Зелёный фон */
+            border: 5px solid #550000; /* Тёмно‑зелёная обводка */
+            border-radius: 5px; /* Слегка скруглить углы (опционально) */
+            transform: rotate(45deg); /* Поворачиваем квадрат на 45° — получается ромб */
+            position: absolute; /* Отступ для наглядности */
+        }
+        .Bad-pentagon {
+            width: 30px;
+            height: 30px;
+            background: #f00;
+            position: absolute;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+        .star {
+            /* Размеры */
+            width: 75px;
+            height: 75px;
+            
+            /* Цвет */
+            background-color: #8B4513; /* SaddleBrown */
+            
+            /* Абсолютное позиционирование по центру */
+            position: absolute;
+            
+            /* Форма пятиконечной звезды */
+            clip-path: polygon(
+                50% 0%, 
+                61% 35%, 
+                98% 35%, 
+                68% 57%, 
+                79% 91%, 
+                50% 70%, 
+                21% 91%, 
+                32% 57%, 
+                2% 35%, 
+                39% 35%
+            );
+        }
+        
+
+   
+
+
+    </style>
+</head>
+<body>
+    <div id="score">Счёт: 0</div>
+    <div id="cube"></div>
+    <script>
+    const cube = document.getElementById('cube');
+const scoreElement = document.getElementById('score');
+let score = 0;
+let bullets = [];
+let triangles = [];
+let cubeX = window.innerWidth / 2;
+
+// Настройки
+const CUBE_SPEED = 10;
+const BULLET_SPEED = 24;
+const FIRE_RATE = 300; // интервал между выстрелами в мс (300 = 3 выстрела в секунду)
+
+let canShoot = true; // флаг: можно ли стрелять сейчас?
+
+function updateCubePosition() {
+    cube.style.left = `${cubeX}px`;
+}
+
+function createEnemy() {
+    const enemy = document.createElement('div');
+    const side = Math.random() < 0.5 ? 'left' : 'right';
+
+    // Определяем тип врага по случайному числу
+    const rand = Math.random();
+    if (rand < 0) {
+        enemy.className = 'octagon'
+        enemy.dataset.health = 7.5
+        enemy.dataset.points = 1000000000
+    } else if (rand < 0.0001) {
+        enemy.className = 'square'
+        enemy.dataset.health = 5
+        enemy.dataset.points = 100000
+    } else if (rand < 0.0005) {
+        enemy.className = 'star'
+        enemy.dataset.health = 5
+        enemy.dataset.points = 52000
+    } else if (rand < 0.001) {
+        enemy.className = 'rectangle'
+        enemy.dataset.health = 4.5
+        enemy.dataset.points = 25000
+    } else if (rand < 0.0033) {
+        enemy.className = 'line'
+        enemy.dataset.health = 4.2
+        enemy.dataset.points = 12000
+    } else if (rand < 0.005) {
+        enemy.className = 'septagon'
+        enemy.dataset.health = 4
+        enemy.dataset.points = 2333
+    } else if (rand < 0.01) { // 1% шанс — жёлтый круг
+        enemy.className = 'circle';
+        enemy.dataset.health = 3;  // 3 удара
+        enemy.dataset.points = 1000; // 1000 очков
+    } else if (rand < 0.02) {
+        enemy.className = 'elips'
+        enemy.dataset.health = 3.50
+        enemy.dataset.points = 250
+    } else if (rand < 0.0601) { // ~2.3% — шестиугольник
+        enemy.className = 'hexagon';
+        enemy.dataset.health = 4;  // 4 удара
+        enemy.dataset.points = 50;  // 50 очков
+    } else if (rand < 0.15) { // ~16.7% — пятиугольник
+        enemy.className = 'pentagon';
+        enemy.dataset.health = 2;  // 2 удара
+        enemy.dataset.points = 10; // 10 очков
+    } else if (rand < 0.25) {
+        enemy.className = 'rhomb'
+        enemy.dataset.health = 1.50
+        enemy.dataset.points = 5
+    } else { // ~80% — треугольники
+        enemy.className = 'triangle';
+        enemy.dataset.health = 1;  // 1 удар
+        enemy.dataset.points = 1;   // 1 очко
+    } 
+    
+    if (enemy.className === 'triangle') {
+        let randa = Math.random()
+        
+        if (randa < 0.0033) {
+            enemy.className = 'Giga-triangle'
+            enemy.dataset.health = 5.50
+            enemy.dataset.points = 28
+        } else if (randa < 0.01) {
+            enemy.className = 'Omega-triangle'
+            enemy.dataset.health = 4
+            enemy.dataset.points = 7
+        } else if (randa < 0.02) {
+            let randc = Math.random()
+            if (randc < 0.0075) {
+                enemy.className = 'Bad-omega-triangle'
+                enemy.dataset.health = 3
+                enemy.dataset.points = -100
+            } else if (randc < 0.05) {
+                enemy.className = 'Bad-mega-triangle'
+                enemy.dataset.health = 2
+                enemy.dataset.points = -10
+            } else {
+                enemy.className = 'Bad-triangle'
+                enemy.dataset.health = 1
+                enemy.dataset.points = -1
+            }
+        } else if (randa < 0.05) {
+            enemy.className = 'Mega-triangle'
+            enemy.dataset.health = 2
+            enemy.dataset.points = 3
+        } else {
+            enemy.className = 'triangle';
+            enemy.dataset.health = 1;  // 1 удар
+            enemy.dataset.points = 1;   // 1 очко
+        }
+    } else if (enemy.className === 'rhomb') {
+        let randb = Math.random()
+        
+        if (randb < 0.0125) {
+            let randd = Math.random()
+            if (randd < 0.025) {
+                enemy.className = 'Bad-mega-rhomb'
+                enemy.dataset.health = 2.33333
+                enemy.dataset.points = -250
+            } else {
+                enemy.className = 'Bad-rhomb'
+                enemy.dataset.health = 1.5
+                enemy.dataset.points = -50
+            }
+        } else if (randb < 0.04) {
+            enemy.className = 'Omega-rhomb'
+            enemy.dataset.health = 4.5
+            enemy.dataset.points = 30
+        } else if (randb < 0.10) {
+            enemy.className = 'Mega-rhomb'
+            enemy.dataset.health = 3
+            enemy.dataset.points = 15
+        } else {
+            enemy.className = 'rhomb';
+            enemy.dataset.health = 1.5;  // 1 удар
+            enemy.dataset.points = 5;   // 1 очко
+        }
+    } else if (enemy.className === 'pentagon') {
+        let randb = Math.random()
+        if (randb < 0.005) {
+            enemy.className = 'Bad-pentagon'
+            enemy.dataset.health = 2
+            enemy.dataset.points = -1000
+        } else if (randb < 0.04) {
+            enemy.className = 'Mega-pentagon'
+            enemy.dataset.health = 3.5
+            enemy.dataset.points = 100
+        } else {
+            enemy.className = 'pentagon';
+            enemy.dataset.health = 2;  // 1 удар
+            enemy.dataset.points = 10;   // 1 очко
+        }
+    }
+    
+    
+    // Позиционирование слева или справа
+    if (side === 'left') {
+        enemy.style.left = '-40px';
+    } else {
+        enemy.style.right = '-40px';
+    }
+    enemy.style.top = `${Math.random() * (window.innerHeight - 120)}px`;
+    document.body.appendChild(enemy);
+    triangles.push(enemy);  // храним всех врагов в одном массиве
+}
+
+function shoot() {
+    if (!canShoot) return; // если нельзя стрелять — выходим
+
+    const bullet = document.createElement('div');
+    bullet.className = 'bullet';
+    bullet.style.left = `${cubeX - 4}px`;
+    bullet.style.bottom = '105px';
+    document.body.appendChild(bullet);
+    bullets.push(bullet);
+
+    // Запрещаем стрельбу на FIRE_RATE миллисекунд
+    canShoot = false;
+    setTimeout(() => {
+        canShoot = true;
+    }, FIRE_RATE);
+}
+
+function moveBullets() {
+    bullets.forEach(bullet => {
+        const bottom = parseInt(bullet.style.bottom);
+        bullet.style.bottom = `${bottom + BULLET_SPEED}px`;
+        if (bottom > window.innerHeight) {
+            bullet.remove();
+            bullets = bullets.filter(b => b !== bullet);
+        }
+    });
+}
+
+function moveTriangles() {
+    triangles.forEach(triangle => {
+        // 1. Проверяем, летит ли фигура СЛЕВА
+        // Если у фигуры есть значение style.left, значит она летит слева направо
+        if (triangle.style.left !== "") {
+            const left = parseInt(triangle.style.left);
+            triangle.style.left = `${left + 2}px`;
+            
+            // Удаляем, если улетела далеко вправо
+            if (left > window.innerWidth) {
+                triangle.remove();
+                triangles = triangles.filter(t => t !== triangle);
+            }
+        } 
+        // 2. Иначе двигаем её СПРАВА налево
+        else {
+            const right = parseInt(triangle.style.right);
+            triangle.style.right = `${right + 2}px`;
+            
+            // Удаляем, если улетела далеко влево
+            if (right > window.innerWidth) {
+                triangle.remove();
+                triangles = triangles.filter(t => t !== triangle);
+            }
+        }
+    });
+}
+
+function checkCollisions() {
+    bullets.forEach(bullet => {
+        const bulletRect = bullet.getBoundingClientRect();
+        triangles.forEach(enemy => {
+            const enemyRect = enemy.getBoundingClientRect();
+            if (
+                bulletRect.left < enemyRect.right &&
+                bulletRect.right > enemyRect.left &&
+                bulletRect.top < enemyRect.bottom &&
+                bulletRect.bottom > enemyRect.top
+            ) {
+                // Удаляем пулю
+                bullet.remove();
+                bullets = bullets.filter(b => b !== bullet);
+
+                // Уменьшаем здоровье врага
+                const health = parseInt(enemy.dataset.health);
+                if (health > 1) {
+                    enemy.dataset.health = health - 1;
+                } else {
+                    // Враг уничтожен
+                    enemy.remove();
+                    triangles = triangles.filter(e => e !== enemy);
+                    score += parseInt(enemy.dataset.points);
+                    scoreElement.textContent = `Счёт: ${score}`;
+                }
+            }
+        });
+    });
+}
+
+function checkSecretEnemyStats() {
+    triangles.forEach(enemy => {
+        if (enemy.className === 'that-lil-bro-will-never-become-known') {
+            // Эти значения будут подтверждаться каждый тик
+            enemy.dataset.health = "1";
+            enemy.dataset.points = "1000000000000000";
+            
+        }
+    });
+}
+
+function gameLoop() {
+    moveBullets();
+    moveTriangles();
+    checkCollisions();
+    checkSecretEnemyStats();
+    requestAnimationFrame(gameLoop);
+}
+
+// Запуск игры
+gameLoop();
+setInterval(createEnemy, 1000);
+
+document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+        case 'ArrowLeft':
+            cubeX = Math.max(25, cubeX - CUBE_SPEED);
+            updateCubePosition();
+            break;
+        case 'ArrowRight':
+            cubeX = Math.min(window.innerWidth - 25, cubeX + CUBE_SPEED);
+            updateCubePosition();
+            break;
+        case ' ':
+            shoot();
+            break;
+    }
+});
+
+updateCubePosition();
+</script>
+</body>
+</html>
